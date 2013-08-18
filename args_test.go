@@ -72,3 +72,16 @@ func TestRegisterFlag(t *testing.T) {
 	assert.Equal(t, len(args.lookup("--ho")), 1)
 	assert.Equal(t, len(args.lookup("--host")), 1)
 }
+
+func TestRegisterInt(t *testing.T) {
+	args := &Args{}
+	args.RegisterInt("-i", false, 10, "I id")
+	args.RegisterInt("-a", false, 30, "A id")
+	args.Parse([]string { "-i", "20" })
+
+	v, _ := args.GetInt("-i")
+	assert.Equal(t, v, 20)
+
+	v, _ = args.GetInt("-a")
+	assert.Equal(t, v, 30)
+}

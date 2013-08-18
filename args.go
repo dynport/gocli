@@ -9,6 +9,7 @@ import (
 
 const (
 	STRING = "string"
+	INTEGER = "int"
 	BOOL = "bool"
 )
 
@@ -62,6 +63,19 @@ func (a *Args) RegisterString(key string, required bool, defaultValue, descripti
 		},
 	)
 }
+
+func (a *Args) RegisterInt(key string, required bool, defaultValue int, description string) {
+	a.RegisterFlag(
+		&Flag{
+			Type: INTEGER,
+			Keys: []string { key },
+			Required: required,
+			DefaultValue: strconv.Itoa(defaultValue),
+			Description: description,
+		},
+	)
+}
+
 
 func (a *Args) RegisterBool(key string, required bool, defaultValue bool, description string) {
 	a.RegisterFlag(
@@ -159,7 +173,7 @@ func (a *Args) handleArgFlag(flag string) error {
 		return e
 	} else {
 		switch t {
-			case STRING:
+			case STRING, INTEGER:
 				a.currentKey = flag
 			case BOOL:
 				a.AddAttribute(flag, "true")
@@ -194,6 +208,14 @@ func (a *Args) handleArg(arg string ) error {
 
 func (a *Args) Get(key string) ([]string) {
 	return a.Attributes[key]
+}
+
+func (a *Args) GetInt(key string) (int, error) {
+	s, e := a.GetString(key)
+	if e != nil {
+		return 0, e
+	}
+	return strconv.Atoi(s)
 }
 
 func (a *Args) GetString(key string) (string, error) {
