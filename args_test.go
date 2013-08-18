@@ -5,26 +5,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestArgs(t *testing.T) {
-	args := &Args{}
-	args.Parse([]string { "a", "b" })
-	assert.Equal(t, args.Args, []string { "a", "b" })
-
-	assert.Equal(t, len(args.Args), 2)
-	assert.Equal(t, args.Length(), 2)
-	assert.Equal(t, args.At(0), "a")
-	assert.Equal(t, args.At(10), "")
-
-	assert.Equal(t, args.From(0).Args, []string { "a", "b" })
-
-	res := []string { "b" }
-	assert.Equal(t, args.From(1).Args, res)
-
-	res = []string {}
-	assert.Equal(t, args.From(2).Args, res)
-	assert.Equal(t, args.From(10).Args, res)
-}
-
 func TestParse(t *testing.T) {
 	args := &Args{}
 	args.String("-h")
@@ -79,16 +59,6 @@ func TestUsage(t *testing.T) {
 	s := args.Usage()
 	assert.NotNil(t, s)
 	assert.Contains(t, s, "--rack")
-}
-
-func TestFromWithAttributes(t *testing.T) {
-	args := &Args{}
-	args.String("-h")
-	args.Parse([]string { "droplets", "create", "-h=some.host" })
-
-	res := args.From(1)
-	assert.Equal(t, res.Args, []string { "create" })
-	assert.Equal(t, res.Get("-h"), []string { "some.host" })
 }
 
 func TestRegisterFlag(t *testing.T) {

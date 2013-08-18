@@ -111,20 +111,6 @@ func (a *Args) Length() int {
 	return len(a.Args)
 }
 
-func (a *Args) At(i int) (string) {
-	if i >= len(a.Args) {
-		return ""
-	}
-	return a.Args[i]
-}
-
-func (a *Args) From(i int) (ret *Args) {
-	if i > len(a.Args) {
-		return &Args{ Args: []string {}, Attributes: a.Attributes }
-	}
-	return &Args{ Args: a.Args[i:], Attributes: a.Attributes }
-}
-
 func (a *Args) String(key string) {
 	a.AddFlag(key, STRING)
 }
