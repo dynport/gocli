@@ -1,0 +1,230 @@
+package gocli
+
+import (
+	"strconv"
+	"regexp"
+	"strings"
+	"fmt"
+)
+
+const (
+	STRING = "string"
+	BOOL = "bool"
+)
+
+var (
+	re = regexp.MustCompile("^([\\-]+.*)")
+)
+
+type Args struct {
+	Args []string
+	Attributes map[string][]string
+	currentKey string
+	FlagMap map[string]*Flag
+	Flags []*Flag
+}
+
+type Flag struct {
+	Type string
+	Keys []string
+	Required bool
+	DefaultValue string
+	Description string
+}
+
+func (f *Flag) Matches(key string) bool {
+	for _, k := range f.Keys {
+		if strings.HasPrefix(k, key) {
+			return true
+		}
+	}
+	return false
+}
+
+func (a *Args) RegisterFlag(flag *Flag) {
+	if a.FlagMap == nil {
+		a.FlagMap = make(map[string]*Flag)
+	}
+	for _, key := range flag.Keys {
+		a.FlagMap[key] = flag
+	}
+	a.Flags = append(a.Flags, flag)
+}
+
+func (a *Args) RegisterString(key string, required bool, defaultValue, description string) {
+	a.RegisterFlag(
+		&Flag{
+			Type: STRING,
+			Keys: []string { key },
+			Required: required,
+			DefaultValue: defaultValue,
+			Description: description,
+		},
+	)
+}
+
+func (a *Args) RegisterBool(key string, required bool, defaultValue bool, description string) {
+	a.RegisterFlag(
+		&Flag{
+			Type: STRING,
+			Keys: []string { key },
+			Required: required,
+			DefaultValue: strconv.FormatBool(required),
+			Description: description,
+		},
+	)
+}
+
+func (f *Flag) Usage() []string {
+	parts := make([]string, 3)
+	parts[0] = strings.Join(f.Keys, ", ")
+	if f.Required {
+		parts[1] = "REQUIRED"
+	} else {
+		parts[1] = fmt.Sprintf("DEFAULT: %q", f.DefaultValue)
+	}
+	parts[2] = f.Description
+
+	return parts
+}
+
+func (a *Args) Usage() string {
+	table := NewTable()
+	table.Separator = " "
+	for _, flag := range a.Flags {
+		table.Add(flag.Usage()...)
+	}
+	return table.String()
+}
+
+func (a *Args) lookup(key string) (flags []*Flag) {
+	for i := range a.Flags {
+		arg := a.Flags[i]
+		if arg.Matches(key) {
+			flags = append(flags, arg)
+		}
+	}
+	return flags
+}
+
+func (a *Args) Length() int {
+	return len(a.Args)
+}
+
+func (a *Args) At(i int) (string) {
+	if i >= len(a.Args) {
+		return ""
+	}
+	return a.Args[i]
+}
+
+func (a *Args) From(i int) (ret *Args) {
+	if i > len(a.Args) {
+		return &Args{ Args: []string {}, Attributes: a.Attributes }
+	}
+	return &Args{ Args: a.Args[i:], Attributes: a.Attributes }
+}
+
+func (a *Args) String(key string) {
+	a.AddFlag(key, STRING)
+}
+
+func (a *Args) Bool(key string) {
+	a.AddFlag(key, BOOL)
+}
+
+func (a *Args) AddFlag(key, value string) {
+	a.RegisterFlag(&Flag{Type: value, Keys: []string { key }})
+}
+
+func (a *Args) AddAttribute(k, v string) {
+	if a.Attributes == nil {
+		a.Attributes = map[string][]string{}
+	}
+	a.Attributes[k] = append(a.Attributes[k], v)
+}
+
+func (a *Args) Parse(args []string) error {
+	a.Args = make([]string, 0, 10)
+	a.Attributes = make(map[string][]string)
+	for _, arg := range args {
+		if e := a.handleArg(arg); e != nil {
+			return e
+		}
+	}
+	return nil
+}
+
+func (a *Args) TypeOf(key string) (string, error) {
+	flags := a.lookup(key)
+	switch len(flags) {
+		case 0:
+			return "", fmt.Errorf("no mapping defined for %s", key)
+		case 1:
+			return flags[0].Type, nil
+		default:
+			return "", fmt.Errorf("mapping for %s not uniq", key)
+	}
+}
+
+func (a *Args) handleArgFlag(flag string) error {
+	if t, e := a.TypeOf(flag); e != nil {
+		return e
+	} else {
+		switch t {
+			case STRING:
+				a.currentKey = flag
+			case BOOL:
+				a.AddAttribute(flag, "true")
+			default:
+				return fmt.Errorf("no mapping defined for %s", flag)
+		}
+	}
+	return nil
+}
+
+func (a *Args) handleArg(arg string ) error {
+	if parts := re.FindStringSubmatch(arg); len(parts) == 2 {
+		chunks := strings.Split(parts[1], "=")
+		if len(chunks) == 2 {
+			key, value := chunks[0], chunks[1]
+			a.AddAttribute(key, value)
+			return nil
+		} else {
+			if e := a.handleArgFlag(chunks[0]); e != nil {
+				return e
+			}
+			return nil
+		}
+	} else if a.currentKey != "" {
+		a.AddAttribute(a.currentKey, arg)
+		a.currentKey = ""
+		return nil
+	}
+	a.Args = append(a.Args, arg)
+	return nil
+}
+
+func (a *Args) Get(key string) ([]string) {
+	return a.Attributes[key]
+}
+
+func (a *Args) GetString(key string) (string, error) {
+	flag, ok := a.FlagMap[key]
+	if !ok {
+		return "", fmt.Errorf("no mapping defined for %s", key)
+	}
+	values := a.Get(key)
+	if len(values) > 0 {
+		return values[len(values)-1], nil
+	}
+	if flag.Required {
+		return "", fmt.Errorf("flag %s is required", key)
+	}
+	return flag.DefaultValue, nil
+}
+
+func (a *Args) GetBool(key string) bool {
+	args := a.Attributes[key]
+	return (len(args) == 1 && args[0] == "true")
+}

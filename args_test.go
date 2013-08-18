@@ -1,0 +1,104 @@
+package gocli
+
+import (
+	"testing"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestArgs(t *testing.T) {
+	args := &Args{}
+	args.Parse([]string { "a", "b" })
+	assert.Equal(t, args.Args, []string { "a", "b" })
+
+	assert.Equal(t, len(args.Args), 2)
+	assert.Equal(t, args.Length(), 2)
+	assert.Equal(t, args.At(0), "a")
+	assert.Equal(t, args.At(10), "")
+
+	assert.Equal(t, args.From(0).Args, []string { "a", "b" })
+
+	res := []string { "b" }
+	assert.Equal(t, args.From(1).Args, res)
+
+	res = []string {}
+	assert.Equal(t, args.From(2).Args, res)
+	assert.Equal(t, args.From(10).Args, res)
+}
+
+func TestParse(t *testing.T) {
+	args := &Args{}
+	args.String("-h")
+
+	args.Parse([]string { "droplets", "create", "-h=some.host" })
+	assert.Equal(t, args.Args, []string { "droplets", "create" })
+	assert.Equal(t, args.Get("-h"), []string { "some.host" })
+
+	args.Parse([]string { "droplets", "create", "-h", "some.host" })
+	assert.Equal(t, args.Args, []string { "droplets", "create" })
+	assert.Equal(t, args.Get("-h"), []string { "some.host" })
+}
+
+func TestParseBool(t *testing.T) {
+	args := &Args{}
+	args.Bool("--rack")
+
+	e := args.Parse([]string { "droplets", "create", "--rack" })
+	assert.Nil(t, e)
+	assert.Equal(t, args.Args, []string { "droplets", "create" })
+	assert.Equal(t, args.GetBool("--rack"), true)
+}
+
+func TestNotRegistered(t *testing.T) {
+	args := &Args{}
+	assert.Nil(t, args.Parse([]string { "droplets", "create"}))
+	assert.NotNil(t, args.Parse([]string { "droplets", "create", "--rack" }))
+}
+
+func TestStringWithoutDefault(t *testing.T) {
+	args := &Args{}
+	args.RegisterString("--host", true, "", "Docker Host to be used")
+	args.Parse([]string { "a", "b" })
+	_, e := args.GetString("--host")
+	assert.NotNil(t, e)
+}
+
+func TestStringWithDefault(t *testing.T) {
+	args := &Args{}
+	args.RegisterString("--host", false, "default.host", "Docker Host to be used")
+	args.RegisterBool("--rack", false, false, "Use as rack application")
+	args.Parse([]string { "a", "b" })
+	v, e := args.GetString("--host")
+	assert.Nil(t, e)
+	assert.Equal(t, v, "default.host")
+}
+
+func TestUsage(t *testing.T) {
+	args := &Args{}
+	args.RegisterString("--host", false, "default.host", "Docker Host to be used")
+	args.RegisterBool("--rack", true, false, "Use as rack application")
+	s := args.Usage()
+	assert.NotNil(t, s)
+	assert.Contains(t, s, "--rack")
+}
+
+func TestFromWithAttributes(t *testing.T) {
+	args := &Args{}
+	args.String("-h")
+	args.Parse([]string { "droplets", "create", "-h=some.host" })
+
+	res := args.From(1)
+	assert.Equal(t, res.Args, []string { "create" })
+	assert.Equal(t, res.Get("-h"), []string { "some.host" })
+}
+
+func TestRegisterFlag(t *testing.T) {
+	args := &Args{}
+	args.RegisterFlag(&Flag{ Keys: []string { "--host" }, Type: STRING})
+	args.RegisterFlag(&Flag{ Keys: []string { "--help" }, Type: STRING})
+	args.RegisterFlag(&Flag{ Keys: []string { "--enabled" }, Type: BOOL})
+
+	assert.Equal(t, len(args.lookup("--h")), 2)
+	assert.Equal(t, len(args.lookup("--h")), 2)
+	assert.Equal(t, len(args.lookup("--ho")), 1)
+	assert.Equal(t, len(args.lookup("--host")), 1)
+}
