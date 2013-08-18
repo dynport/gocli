@@ -141,16 +141,17 @@ func (a *Args) Parse(args []string) error {
 	return nil
 }
 
-func (a *Args) TypeOf(key string) (string, error) {
+func (a *Args) TypeOf(key string) (out string, e error) {
 	flags := a.lookup(key)
 	switch len(flags) {
 		case 0:
-			return "", fmt.Errorf("no mapping defined for %s", key)
+			e = fmt.Errorf("no mapping defined for %s", key)
 		case 1:
-			return flags[0].Type, nil
+			out = flags[0].Type
 		default:
-			return "", fmt.Errorf("mapping for %s not uniq", key)
+			e = fmt.Errorf("mapping for %s not uniq", key)
 	}
+	return out, e
 }
 
 func (a *Args) handleArgFlag(flag string) error {
