@@ -122,7 +122,8 @@ func (cli *Router) Handle(raw []string) error {
 			return nil
 		case 1:
 			var action *Action
-			for _, a := range actions {
+			for k, a := range actions {
+				parts = strings.Split(k, "/")
 				action = a
 			}
 			args := action.Args
