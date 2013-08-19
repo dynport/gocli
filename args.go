@@ -218,6 +218,14 @@ func (a *Args) GetInt(key string) (int, error) {
 	return strconv.Atoi(s)
 }
 
+func (a *Args) MustGetString(key string) string {
+	s, e := a.GetString(key)
+	if e != nil {
+		panic(e.Error())
+	}
+	return s
+}
+
 func (a *Args) GetString(key string) (string, error) {
 	flag, ok := a.FlagMap[key]
 	if !ok {
