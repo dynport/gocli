@@ -1,4 +1,4 @@
-package gocli
+package main
 
 import (
 	"testing"

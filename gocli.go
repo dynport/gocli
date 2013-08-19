@@ -1,2 +1,2 @@
-package gocli
+package main
 

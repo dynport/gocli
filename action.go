@@ -1,4 +1,4 @@
-package gocli
+package main
 
 type Action struct {
 	Handler     func(*Args) error
