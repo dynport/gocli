@@ -1,4 +1,4 @@
-package main
+package gocli
 
 import (
 	"github.com/stretchr/testify/assert"

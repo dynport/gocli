@@ -3,8 +3,11 @@ default: test
 build:
 	go build -o ./bin/gocli
 
-test: build
+clean:
+	rm -f bin/*
+
+test: clean build
 	go test -v
-	./bin/gocli
-	./bin/gocli co
-	./bin/gocli co sta
+	# ./bin/gocli
+	# ./bin/gocli co
+	# ./bin/gocli co sta
