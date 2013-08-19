@@ -42,6 +42,16 @@ func TestStringWithoutDefault(t *testing.T) {
 	assert.NotNil(t, e)
 }
 
+func TestRegister(t *testing.T) {
+	args := NewArgs(map[string]*Flag {
+			"-h": { Type: STRING, Required: false, DefaultValue: "some.host", Description: "Some Description" },
+		},
+	)
+	assert.NotNil(t, args)
+	ty, _ := args.TypeOf("-h")
+	assert.Equal(t, ty, "string")
+}
+
 func TestStringWithDefault(t *testing.T) {
 	args := &Args{}
 	args.RegisterString("--host", false, "default.host", "Docker Host to be used")

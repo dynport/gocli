@@ -33,6 +33,15 @@ type Flag struct {
 	Description string
 }
 
+func NewArgs(mapping map[string]*Flag) *Args {
+	a := &Args{}
+	for key, flag := range mapping {
+		flag.Keys = []string { key }
+		a.RegisterFlag(flag)
+	}
+	return a
+}
+
 func (f *Flag) Matches(key string) bool {
 	for _, k := range f.Keys {
 		if strings.HasPrefix(k, key) {
