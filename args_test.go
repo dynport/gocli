@@ -85,3 +85,14 @@ func TestRegisterInt(t *testing.T) {
 	v, _ = args.GetInt("-a")
 	assert.Equal(t, v, 30)
 }
+
+func TestRegisterBool(t *testing.T) {
+	args := &Args{}
+	args.RegisterBool("--disabled", false, false, "Disabled")
+	tp, _ := args.TypeOf("--disabled")
+	assert.Equal(t, tp, "bool")
+	e := args.Parse([]string { "--disabled" })
+	assert.Nil(t, e)
+	res := args.GetBool("--disabled")
+	assert.Equal(t, res, true)
+}

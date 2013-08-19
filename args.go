@@ -80,7 +80,7 @@ func (a *Args) RegisterInt(key string, required bool, defaultValue int, descript
 func (a *Args) RegisterBool(key string, required bool, defaultValue bool, description string) {
 	a.RegisterFlag(
 		&Flag{
-			Type: STRING,
+			Type: BOOL,
 			Keys: []string { key },
 			Required: required,
 			DefaultValue: strconv.FormatBool(required),
