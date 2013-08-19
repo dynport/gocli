@@ -40,3 +40,15 @@ func TestRouter(t *testing.T) {
 	assert.Contains(t, usage, `-h DEFAULT: "127.0.0.1" host to use`)
 	assert.Contains(t, usage, `-i REQUIRED             Image id`)
 }
+
+func TestSearchActions(t *testing.T) {
+	router := NewRouter(map[string]*Action {
+			"container/start": {},
+			"container/stop": {},
+			"image/list": {},
+		},
+	)
+	assert.Equal(t, len(router.Actions), 3)
+	assert.Equal(t, len(router.Search([]string {})), 3)
+	assert.Equal(t, len(router.Search([]string {"con"})), 2)
+}
