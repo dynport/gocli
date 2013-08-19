@@ -11,7 +11,7 @@ type Router struct {
 	Actions map[string]*Action
 }
 
-func (cli *Router) RegisterAction(path string, action *Action) {
+func (cli *Router) Register(path string, action *Action) {
 	if cli.Actions == nil {
 		cli.Actions = make(map[string]*Action)
 	}

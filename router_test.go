@@ -10,7 +10,7 @@ func TestRouter(t *testing.T) {
 	args := &Args{}
 	args.RegisterString("-h", false, "127.0.0.1", "host to use")
 	args.RegisterString("-i", true, "", "Image id")
-	router.RegisterAction(
+	router.Register(
 		"container/start",
 		&Action{
 			Description: "start a container",
@@ -18,7 +18,7 @@ func TestRouter(t *testing.T) {
 			Usage: "<container_id>",
 		},
 	)
-	router.RegisterAction(
+	router.Register(
 		"container/stop",
 		&Action{
 			Description: "stop a container",
