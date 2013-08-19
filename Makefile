@@ -6,6 +6,9 @@ build:
 clean:
 	rm -f bin/*
 
+update:
+	go get -u github.com/dynport/gocli
+
 test: clean build
 	go test -v
 	# ./bin/gocli

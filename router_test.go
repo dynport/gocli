@@ -52,3 +52,30 @@ func TestSearchActions(t *testing.T) {
 	assert.Equal(t, len(router.Search([]string{})), 3)
 	assert.Equal(t, len(router.Search([]string{"con"})), 2)
 }
+
+func TestHandle(t *testing.T) {
+	res := []string {}
+
+	router := NewRouter(map[string]*Action{
+		"container/start": {
+			Handler: func(*Args) error {
+				res = append(res, "container.start")
+				return nil
+			},
+		},
+		"container/stop":  {},
+		"image/list":      {},
+	},
+	)
+
+	router.Handle([]string { "co", "sta" })
+	assert.Equal(t, res, []string {"container.start"} )
+
+	res = []string {}
+	router.Handle([]string { "co", "sta", "1" })
+	assert.Equal(t, res, []string {"container.start"} )
+
+	res = []string {}
+	router.Handle([]string { "co", "st" })
+	assert.Equal(t, res, []string {} )
+}

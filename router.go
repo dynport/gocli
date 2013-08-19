@@ -118,8 +118,7 @@ func (cli *Router) Handle(raw []string) error {
 		actions := cli.Search(parts)
 		switch len(actions) {
 		case 0:
-			fmt.Println(cli.Usage())
-			return nil
+			continue
 		case 1:
 			var action *Action
 			for k, a := range actions {
@@ -151,5 +150,6 @@ func (cli *Router) Handle(raw []string) error {
 
 		}
 	}
+	fmt.Println(cli.Usage())
 	return nil
 }
