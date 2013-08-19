@@ -6,12 +6,12 @@ import (
 )
 
 func main() {
-	fmt.Println("gocli test script")
+	fmt.Println(Green("gocli test script"))
 	router := NewRouter(
-		map[string]*Action {
+		map[string]*Action{
 			"container/start": {
 				Description: "Start container",
-				Usage: "<container_id>",
+				Usage:       "<container_id>",
 				Handler: func(args *Args) error {
 					fmt.Println("ACTION: start container")
 					return nil
@@ -19,7 +19,7 @@ func main() {
 			},
 			"container/stop": {
 				Description: "Stop container",
-				Usage: "<container_id>",
+				Usage:       "<container_id>",
 				Handler: func(args *Args) error {
 					fmt.Println("ACTION: stop container", args.Args)
 					return nil

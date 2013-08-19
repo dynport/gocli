@@ -7,15 +7,15 @@ import (
 
 func NewTable() *Table {
 	return &Table{
-		Columns: [][]string{},
-		Lengths: map[int]int{},
+		Columns:   [][]string{},
+		Lengths:   map[int]int{},
 		Separator: "\t",
 	}
 }
 
 type Table struct {
-	Columns [][]string
-	Lengths map[int]int
+	Columns   [][]string
+	Lengths   map[int]int
 	Separator string
 }
 

@@ -1,16 +1,16 @@
 package main
 
 import (
-	"strconv"
-	"regexp"
-	"strings"
 	"fmt"
+	"regexp"
+	"strconv"
+	"strings"
 )
 
 const (
-	STRING = "string"
+	STRING  = "string"
 	INTEGER = "int"
-	BOOL = "bool"
+	BOOL    = "bool"
 )
 
 var (
@@ -18,25 +18,25 @@ var (
 )
 
 type Args struct {
-	Args []string
+	Args       []string
 	Attributes map[string][]string
 	currentKey string
-	FlagMap map[string]*Flag
-	Flags []*Flag
+	FlagMap    map[string]*Flag
+	Flags      []*Flag
 }
 
 type Flag struct {
-	Type string
-	Keys []string
-	Required bool
+	Type         string
+	Keys         []string
+	Required     bool
 	DefaultValue string
-	Description string
+	Description  string
 }
 
 func NewArgs(mapping map[string]*Flag) *Args {
 	a := &Args{}
 	for key, flag := range mapping {
-		flag.Keys = []string { key }
+		flag.Keys = []string{key}
 		a.RegisterFlag(flag)
 	}
 	return a
@@ -64,11 +64,11 @@ func (a *Args) RegisterFlag(flag *Flag) {
 func (a *Args) RegisterString(key string, required bool, defaultValue, description string) {
 	a.RegisterFlag(
 		&Flag{
-			Type: STRING,
-			Keys: []string { key },
-			Required: required,
+			Type:         STRING,
+			Keys:         []string{key},
+			Required:     required,
 			DefaultValue: defaultValue,
-			Description: description,
+			Description:  description,
 		},
 	)
 }
@@ -76,24 +76,23 @@ func (a *Args) RegisterString(key string, required bool, defaultValue, descripti
 func (a *Args) RegisterInt(key string, required bool, defaultValue int, description string) {
 	a.RegisterFlag(
 		&Flag{
-			Type: INTEGER,
-			Keys: []string { key },
-			Required: required,
+			Type:         INTEGER,
+			Keys:         []string{key},
+			Required:     required,
 			DefaultValue: strconv.Itoa(defaultValue),
-			Description: description,
+			Description:  description,
 		},
 	)
 }
 
-
 func (a *Args) RegisterBool(key string, required bool, defaultValue bool, description string) {
 	a.RegisterFlag(
 		&Flag{
-			Type: BOOL,
-			Keys: []string { key },
-			Required: required,
+			Type:         BOOL,
+			Keys:         []string{key},
+			Required:     required,
 			DefaultValue: strconv.FormatBool(required),
-			Description: description,
+			Description:  description,
 		},
 	)
 }
@@ -143,7 +142,7 @@ func (a *Args) Bool(key string) {
 }
 
 func (a *Args) AddFlag(key, value string) {
-	a.RegisterFlag(&Flag{Type: value, Keys: []string { key }})
+	a.RegisterFlag(&Flag{Type: value, Keys: []string{key}})
 }
 
 func (a *Args) AddAttribute(k, v string) {
@@ -167,12 +166,12 @@ func (a *Args) Parse(args []string) error {
 func (a *Args) TypeOf(key string) (out string, e error) {
 	flags := a.lookup(key)
 	switch len(flags) {
-		case 0:
-			e = fmt.Errorf("no mapping defined for %s", key)
-		case 1:
-			out = flags[0].Type
-		default:
-			e = fmt.Errorf("mapping for %s not uniq", key)
+	case 0:
+		e = fmt.Errorf("no mapping defined for %s", key)
+	case 1:
+		out = flags[0].Type
+	default:
+		e = fmt.Errorf("mapping for %s not uniq", key)
 	}
 	return out, e
 }
@@ -182,18 +181,18 @@ func (a *Args) handleArgFlag(flag string) error {
 		return e
 	} else {
 		switch t {
-			case STRING, INTEGER:
-				a.currentKey = flag
-			case BOOL:
-				a.AddAttribute(flag, "true")
-			default:
-				return fmt.Errorf("no mapping defined for %s", flag)
+		case STRING, INTEGER:
+			a.currentKey = flag
+		case BOOL:
+			a.AddAttribute(flag, "true")
+		default:
+			return fmt.Errorf("no mapping defined for %s", flag)
 		}
 	}
 	return nil
 }
 
-func (a *Args) handleArg(arg string ) error {
+func (a *Args) handleArg(arg string) error {
 	if parts := re.FindStringSubmatch(arg); len(parts) == 2 {
 		chunks := strings.Split(parts[1], "=")
 		if len(chunks) == 2 {
@@ -215,7 +214,7 @@ func (a *Args) handleArg(arg string ) error {
 	return nil
 }
 
-func (a *Args) Get(key string) ([]string) {
+func (a *Args) Get(key string) []string {
 	return a.Attributes[key]
 }
 

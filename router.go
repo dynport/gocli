@@ -1,15 +1,15 @@
 package main
 
 import (
-	"regexp"
 	"fmt"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 )
 
 type Router struct {
-	Actions map[string]*Action
+	Actions   map[string]*Action
 	Separator string
 }
 
@@ -54,7 +54,7 @@ func (cli *Router) UsageForKeys(keys []string, pattern string) string {
 		table.Separator = cli.Separator
 	}
 	maxParts := 0
-	selected := []string {}
+	selected := []string{}
 	for _, key := range keys {
 		partsCount := len(strings.Split(key, "/"))
 		if partsCount > maxParts {
@@ -117,36 +117,36 @@ func (cli *Router) Handle(raw []string) error {
 		parts := raw[1:i]
 		actions := cli.Search(parts)
 		switch len(actions) {
-			case 0:
-				fmt.Println(cli.Usage())
-				return nil
-			case 1:
-				var action *Action
-				for _, a := range actions {
-					action = a
-				}
-				args := action.Args
-				if args == nil {
-					args = &Args{}
-				}
-				e := args.Parse(raw[i:])
-				if e == nil {
-					e = action.Handler(args)
-				}
-				if e != nil {
-					table := NewTable()
-					AddActionUsage(parts, table, action)
-					fmt.Println(table.String())
-					os.Exit(0)
-				}
-				return nil
-			default:
-				keys := []string {}
-				for key, _ := range actions {
-					keys = append(keys, key)
-				}
-				fmt.Println(cli.UsageForKeys(keys, ""))
-				return nil
+		case 0:
+			fmt.Println(cli.Usage())
+			return nil
+		case 1:
+			var action *Action
+			for _, a := range actions {
+				action = a
+			}
+			args := action.Args
+			if args == nil {
+				args = &Args{}
+			}
+			e := args.Parse(raw[i:])
+			if e == nil {
+				e = action.Handler(args)
+			}
+			if e != nil {
+				table := NewTable()
+				AddActionUsage(parts, table, action)
+				fmt.Println(table.String())
+				os.Exit(0)
+			}
+			return nil
+		default:
+			keys := []string{}
+			for key, _ := range actions {
+				keys = append(keys, key)
+			}
+			fmt.Println(cli.UsageForKeys(keys, ""))
+			return nil
 
 		}
 	}

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestRouter(t *testing.T) {
@@ -14,22 +14,22 @@ func TestRouter(t *testing.T) {
 		"ssh",
 		&Action{
 			Description: "SSH Into",
-			Usage: "<search>",
+			Usage:       "<search>",
 		},
 	)
 	router.Register(
 		"container/start",
 		&Action{
 			Description: "start a container",
-			Args: args,
-			Usage: "<container_id>",
+			Args:        args,
+			Usage:       "<container_id>",
 		},
 	)
 	router.Register(
 		"container/stop",
 		&Action{
 			Description: "stop a container",
-			Usage: "<container_id>",
+			Usage:       "<container_id>",
 		},
 	)
 	assert.NotNil(t, router)
@@ -42,13 +42,13 @@ func TestRouter(t *testing.T) {
 }
 
 func TestSearchActions(t *testing.T) {
-	router := NewRouter(map[string]*Action {
-			"container/start": {},
-			"container/stop": {},
-			"image/list": {},
-		},
+	router := NewRouter(map[string]*Action{
+		"container/start": {},
+		"container/stop":  {},
+		"image/list":      {},
+	},
 	)
 	assert.Equal(t, len(router.Actions), 3)
-	assert.Equal(t, len(router.Search([]string {})), 3)
-	assert.Equal(t, len(router.Search([]string {"con"})), 2)
+	assert.Equal(t, len(router.Search([]string{})), 3)
+	assert.Equal(t, len(router.Search([]string{"con"})), 2)
 }
