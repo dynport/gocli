@@ -11,6 +11,13 @@ func TestRouter(t *testing.T) {
 	args.RegisterString("-h", false, "127.0.0.1", "host to use")
 	args.RegisterString("-i", true, "", "Image id")
 	router.Register(
+		"ssh",
+		&Action{
+			Description: "SSH Into",
+			Usage: "<search>",
+		},
+	)
+	router.Register(
 		"container/start",
 		&Action{
 			Description: "start a container",
@@ -27,6 +34,7 @@ func TestRouter(t *testing.T) {
 	)
 	assert.NotNil(t, router)
 	usage := router.Usage()
+	assert.Contains(t, usage, "ssh      \t     \t<search>")
 	assert.Contains(t, usage, "container\tstart\t<container_id>\tstart a container")
 	assert.Contains(t, usage, "container\tstop \t<container_id>\tstop a container")
 	assert.Contains(t, usage, `-h DEFAULT: "127.0.0.1" host to use`)

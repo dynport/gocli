@@ -20,7 +20,12 @@ func (cli *Router) Register(path string, action *Action) {
 
 func (cli *Router) Usage() string {
 	keys := []string{}
+	maxParts := 0
 	for key := range cli.Actions {
+		partsCount := len(strings.Split(key, "/"))
+		if partsCount > maxParts {
+			maxParts = partsCount
+		}
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
@@ -29,6 +34,12 @@ func (cli *Router) Usage() string {
 	for _, key := range keys {
 		parts := strings.Split(key, "/")
 		action := cli.Actions[key]
+
+		// fill up parts
+		for i := (maxParts - len(parts)); i > 0; i-- {
+			parts = append(parts, "")
+		}
+
 		parts = append(parts, action.Usage, action.Description)
 		table.Add(parts...)
 		if action.Args != nil {
