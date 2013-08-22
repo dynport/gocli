@@ -226,6 +226,14 @@ func (a *Args) GetInt(key string) (int, error) {
 	return strconv.Atoi(s)
 }
 
+func (a *Args) MustGetInt(key string) int {
+	i, e := a.GetInt(key)
+	if e != nil {
+		panic(e.Error())
+	}
+	return i
+}
+
 func (a *Args) MustGetString(key string) string {
 	s, e := a.GetString(key)
 	if e != nil {
