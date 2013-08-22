@@ -135,9 +135,10 @@ func (cli *Router) Handle(raw []string) error {
 			}
 			if e != nil {
 				table := NewTable()
+				fmt.Println("ERROR: " + e.Error())
 				AddActionUsage(parts, table, action)
 				fmt.Println(table.String())
-				os.Exit(0)
+				os.Exit(1)
 			}
 			return nil
 		default:
