@@ -72,7 +72,7 @@ func (cli *Router) UsageForKeys(keys []string, pattern string) string {
 		}
 
 		parts = append(parts, action.Usage, action.Description)
-		table.AddStrings(parts)
+		table.Add(parts...)
 		if action.Args != nil {
 			usage := action.Args.Usage()
 			if usage != "" {
@@ -83,7 +83,7 @@ func (cli *Router) UsageForKeys(keys []string, pattern string) string {
 						usageParts = append(usageParts, "")
 					}
 					current := append(usageParts, line)
-					table.AddStrings(current)
+					table.Add(current...)
 				}
 			}
 		}
@@ -95,7 +95,7 @@ func (cli *Router) UsageForKeys(keys []string, pattern string) string {
 
 func AddActionUsage(parts []string, table *Table, action *Action) {
 	parts = append(parts, action.Usage, action.Description)
-	table.AddStrings(parts)
+	table.Add(parts...)
 	if action.Args != nil {
 		usage := action.Args.Usage()
 		if usage != "" {
@@ -106,7 +106,7 @@ func AddActionUsage(parts []string, table *Table, action *Action) {
 					usageParts = append(usageParts, "")
 				}
 				current := append(usageParts, line)
-				table.AddStrings(current)
+				table.Add(current...)
 			}
 		}
 	}

@@ -38,24 +38,11 @@ func (self *Table) Lines() (lines []string) {
 	return
 }
 
-func (t *Table) AddStrings(s []string) {
-	var ret = make([]interface{}, len(s))
-
-	for i, v := range s {
-		ret[i] = v
-	}
-	t.Add(ret)
-}
-
-// Add adds a column to the table
-func (self *Table) Add(cols ...interface{}) {
-	converted := make([]string, len(cols))
+func (self *Table) Add(cols ...string) {
 	for i, v := range cols {
-		s := fmt.Sprint(v)
-		converted[i] = s
-		if self.Lengths[i] < len(s) {
-			self.Lengths[i] = len(s)
+		if self.Lengths[i] < len(v) {
+			self.Lengths[i] = len(v)
 		}
 	}
-	self.Columns = append(self.Columns, converted)
+	self.Columns = append(self.Columns, cols)
 }
