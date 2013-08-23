@@ -10,7 +10,7 @@ install:
 	go install github.com/dynport/gocli
 
 test: clean build
-	go test -v
+	VERBOSE=true go test
 	# ./bin/gocli
 	# ./bin/gocli co
 	# ./bin/gocli co sta
