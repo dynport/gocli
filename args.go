@@ -114,7 +114,7 @@ func (a *Args) Usage() string {
 	table := NewTable()
 	table.Separator = " "
 	for _, flag := range a.Flags {
-		table.Add(flag.Usage()...)
+		table.AddStrings(flag.Usage())
 	}
 	return table.String()
 }

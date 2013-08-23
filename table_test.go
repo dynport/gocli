@@ -21,3 +21,10 @@ func TestColorize(t *testing.T) {
 	str := Colorize(90, "test")
 	assert.NotNil(t, str)
 }
+
+func TestAddColumnsNotBeingStrings(t *testing.T) {
+	table := NewTable()
+	table.Separator = " "
+	table.Add(1, 2, "a")
+	assert.Contains(t, table.String(), "1 2 a")
+}
