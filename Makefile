@@ -1,4 +1,4 @@
-default: test install
+default: test
 
 build:
 	go build -o ./bin/gocli
