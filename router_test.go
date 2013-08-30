@@ -51,10 +51,18 @@ func TestSearchActions(t *testing.T) {
 	assert.Equal(t, len(router.Actions), 3)
 	assert.Equal(t, len(router.Search([]string{})), 3)
 	assert.Equal(t, len(router.Search([]string{"con"})), 2)
+	assert.Equal(t, len(router.Search([]string{"on"})), 0)
+}
+
+type Writer struct {
+}
+
+func (writer *Writer) Write(b []byte) (int, error) {
+	return 0, nil
 }
 
 func TestHandle(t *testing.T) {
-	res := []string {}
+	res := []string{}
 
 	router := NewRouter(map[string]*Action{
 		"container/start": {
@@ -63,19 +71,28 @@ func TestHandle(t *testing.T) {
 				return nil
 			},
 		},
-		"container/stop":  {},
-		"image/list":      {},
+		"container/stop": {},
+		"image/list":     {},
 	},
 	)
 
-	router.Handle([]string { "co", "sta" })
-	assert.Equal(t, res, []string {"container.start"} )
+	router.Handle([]string{"file.name", "co", "sta"})
+	assert.Equal(t, res, []string{"container.start"})
 
-	res = []string {}
-	router.Handle([]string { "co", "sta", "1" })
-	assert.Equal(t, res, []string {"container.start"} )
+	res = []string{}
+	router.Handle([]string{"file.name", "co", "sta", "1"})
+	assert.Equal(t, res, []string{"container.start"})
 
-	res = []string {}
-	router.Handle([]string { "co", "st" })
-	assert.Equal(t, res, []string {} )
+	res = []string{}
+	router.SetWriter(&Writer{})
+	router.Handle([]string{"file.name", "co", "st"})
+	assert.Equal(t, res, []string{})
+}
+
+func TestActionMatches(t *testing.T) {
+	key := "container/list"
+	assert.True(t, keyMatches(key, []string{"co"}))
+	assert.True(t, keyMatches(key, []string{"co", "li"}))
+	assert.False(t, keyMatches(key, []string{"co", "i"}))
+	assert.False(t, keyMatches(key, []string{"o", "li"}))
 }

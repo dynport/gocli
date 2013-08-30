@@ -2,8 +2,8 @@ package gocli
 
 import (
 	"fmt"
+	"io"
 	"os"
-	"regexp"
 	"sort"
 	"strings"
 )
@@ -11,10 +11,12 @@ import (
 type Router struct {
 	Actions   map[string]*Action
 	Separator string
+	writer io.Writer
 }
 
 func NewRouter(mapping map[string]*Action) *Router {
 	router := &Router{}
+	router.Actions = map[string]*Action{}
 	for path, action := range mapping {
 		router.Register(path, action)
 	}
@@ -29,14 +31,25 @@ func (cli *Router) Register(path string, action *Action) {
 }
 
 func (router *Router) Search(patterns []string) map[string]*Action {
-	re := regexp.MustCompile(strings.Join(patterns, ".*/"))
 	actions := make(map[string]*Action)
 	for key, action := range router.Actions {
-		if re.MatchString(key) {
+		if keyMatches(key, patterns) {
 			actions[key] = action
 		}
 	}
 	return actions
+}
+
+func keyMatches(key string, pattern []string) bool {
+	for i, key := range strings.Split(key, "/") {
+		if i >= len(pattern) {
+			return true
+		}
+		if !strings.HasPrefix(key, pattern[i]) {
+			return false
+		}
+	}
+	return true
 }
 
 func (cli *Router) Usage() string {
@@ -112,6 +125,17 @@ func AddActionUsage(parts []string, table *Table, action *Action) {
 	}
 }
 
+func (router *Router) SetWriter(writer io.Writer) {
+	router.writer = writer
+}
+
+func (router *Router) Writer() io.Writer {
+	if router.writer != nil {
+		return router.writer
+	}
+	return os.Stdout
+}
+
 func (cli *Router) Handle(raw []string) error {
 	for i := len(raw); i > 0; i-- {
 		parts := raw[1:i]
@@ -135,9 +159,9 @@ func (cli *Router) Handle(raw []string) error {
 			}
 			if e != nil {
 				table := NewTable()
-				fmt.Println("ERROR: " + e.Error())
+				fmt.Fprintln(cli.Writer(), "ERROR: " + e.Error())
 				AddActionUsage(parts, table, action)
-				fmt.Println(table.String())
+				fmt.Fprintln(cli.Writer(), table.String())
 				os.Exit(1)
 			}
 			return nil
@@ -146,11 +170,11 @@ func (cli *Router) Handle(raw []string) error {
 			for key, _ := range actions {
 				keys = append(keys, key)
 			}
-			fmt.Println(cli.UsageForKeys(keys, ""))
+			fmt.Fprintln(cli.Writer(), cli.UsageForKeys(keys, ""))
 			return nil
 
 		}
 	}
-	fmt.Println(cli.Usage())
+	fmt.Fprintln(cli.Writer(), cli.Usage())
 	return nil
 }
