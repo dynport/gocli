@@ -112,6 +112,14 @@ func AddActionUsage(parts []string, table *Table, action *Action) {
 	}
 }
 
+func printActionUsage(parts []string, action *Action, message interface{}) {
+	table := NewTable()
+	fmt.Println("ERROR:", message)
+	AddActionUsage(parts, table, action)
+	fmt.Println(table.String())
+	os.Exit(1)
+}
+
 func (cli *Router) Handle(raw []string) error {
 	for i := len(raw); i > 0; i-- {
 		parts := raw[1:i]
@@ -125,6 +133,11 @@ func (cli *Router) Handle(raw []string) error {
 				parts = strings.Split(k, "/")
 				action = a
 			}
+			defer func(parts []string, action *Action) {
+				if r := recover(); r != nil {
+					printActionUsage(parts, action, r)
+				}
+			}(parts, action)
 			args := action.Args
 			if args == nil {
 				args = &Args{}
@@ -134,11 +147,7 @@ func (cli *Router) Handle(raw []string) error {
 				e = action.Handler(args)
 			}
 			if e != nil {
-				table := NewTable()
-				fmt.Println("ERROR: " + e.Error())
-				AddActionUsage(parts, table, action)
-				fmt.Println(table.String())
-				os.Exit(1)
+				printActionUsage(parts, action, e.Error())
 			}
 			return nil
 		default:
