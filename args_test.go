@@ -96,6 +96,24 @@ func TestRegisterInt(t *testing.T) {
 	assert.Equal(t, v, 30)
 }
 
+func TestAttributesMap(t *testing.T) {
+	args := NewArgs(FlagMap{
+		"-v":        {Type: STRING, DefaultValue: "1.2.3", Key: "version"},
+		"--host":    {Type: STRING},
+		"--user":    {Type: STRING},
+		"--enabled": {Type: BOOL, DefaultValue: ""},
+		"--flush":   {Type: BOOL, DefaultValue: "true"},
+	})
+	args.Parse([]string{"-v", "1.2.1", "--host", "localhost"})
+	m := args.AttributesMap()
+	assert.Equal(t, len(m), 3)
+	assert.Equal(t, m, map[string]string{
+		"version": "1.2.1",
+		"host":    "localhost",
+		"flush":   "true",
+	})
+}
+
 func TestRegisterBool(t *testing.T) {
 	args := &Args{}
 	args.RegisterBool("--disabled", false, false, "Disabled")

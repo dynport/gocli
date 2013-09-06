@@ -25,13 +25,48 @@ type Args struct {
 	Flags      []*Flag
 }
 
-func NewArgs(mapping map[string]*Flag) *Args {
+type FlagMap map[string]*Flag
+
+func NewArgs(mapping FlagMap) *Args {
 	a := &Args{}
 	for key, flag := range mapping {
 		flag.CliFlag = key
 		a.RegisterFlag(flag)
 	}
 	return a
+}
+
+var RE_FLAG_PREFIX = regexp.MustCompile("^([\\-]+)")
+
+func (a *Args) getWithDefaults(key string) []string {
+	flag := a.FlagMap[key]
+	if flag == nil {
+		panic("no flag found for " + key)
+	}
+	values := a.Attributes[key]
+	if len(values) == 0 {
+		if flag.DefaultValue != "" {
+			values = []string{flag.DefaultValue}
+		}
+	}
+	return values
+}
+
+func (a *Args) AttributesMap() map[string]string {
+	m := make(map[string]string)
+	for k, flag := range a.FlagMap {
+		key := flag.Key
+		if key == "" {
+			key = RE_FLAG_PREFIX.ReplaceAllString(k, "")
+		}
+		v := a.getWithDefaults(k)
+		if len(v) == 1 {
+			m[key] = v[0]
+		} else if len(v) > 0 {
+			m[key] = strings.Join(v, ",")
+		}
+	}
+	return m
 }
 
 func (a *Args) RegisterFlag(flag *Flag) {
