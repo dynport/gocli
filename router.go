@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"regexp"
 	"sort"
 	"strings"
 )
@@ -30,11 +29,23 @@ func (cli *Router) Register(path string, action *Action) {
 	cli.Actions[path] = action
 }
 
+func (router *Router) matchKey(patterns []string, key string) bool {
+	keyParts := strings.Split(key, "/")
+	for i, pattern := range patterns {
+		if i > (len(keyParts) - 1) {
+			return false
+		}
+		if !strings.HasPrefix(keyParts[i], pattern) {
+			return false
+		}
+	}
+	return true
+}
+
 func (router *Router) Search(patterns []string) map[string]*Action {
-	re := regexp.MustCompile(strings.Join(patterns, ".*/"))
 	actions := make(map[string]*Action)
 	for key, action := range router.Actions {
-		if re.MatchString(key) {
+		if router.matchKey(patterns, key) {
 			actions[key] = action
 		}
 	}
@@ -161,6 +172,7 @@ func (cli *Router) Handle(raw []string) error {
 			}
 			return nil
 		default:
+			// multiple actions count => print help for them
 			keys := []string{}
 			for key, _ := range actions {
 				keys = append(keys, key)

@@ -68,12 +68,24 @@ func TestSearchActions(t *testing.T) {
 	assert.Equal(t, len(router.Search([]string{"con"})), 2)
 }
 
+func TestMatchKey(t *testing.T) {
+	assert.True(t, router.matchKey([]string{"co", "sta"}, "container/start"))
+	assert.True(t, router.matchKey([]string{"co"}, "container/start"))
+	assert.False(t, router.matchKey([]string{"ont", "sta"}, "container/start"))
+	assert.False(t, router.matchKey([]string{"co", "sto"}, "container/start"))
+}
+
 func TestRouterSearch(t *testing.T) {
-	//
+	assert.Equal(t, len(router.Search([]string{"con", "sta"})), 1)
+	assert.Equal(t, len(router.Search([]string{"con", "st"})), 2)
+	assert.Equal(t, len(router.Search([]string{"on", "st"})), 0)
+	//assert.Equal(t, len(router.Search([]string{"con", "st"})), 2)
+	//assert.Equal(t, len(router.Search([]string{"con", "st", "1234"})), 2)
+	//assert.Equal(t, len(router.Search([]string{"con"})), 2)
 }
 
 func TestHandle(t *testing.T) {
-	res := []string {}
+	res := []string{}
 
 	router := NewRouter(map[string]*Action{
 		"container/start": {
@@ -82,20 +94,22 @@ func TestHandle(t *testing.T) {
 				return nil
 			},
 		},
-		"container/stop":  {},
-		"image/list":      {},
+		"container/stop": {},
+		"image/list":     {},
 	},
 	)
 	router.Writer = &DummyWriter{}
 
-	router.Handle([]string { "co", "sta" })
-	assert.Equal(t, res, []string {"container.start"} )
+	pattern := []string{"/some/bin", "co", "sta"}
 
-	res = []string {}
-	router.Handle([]string { "co", "sta", "1" })
-	assert.Equal(t, res, []string {"container.start"} )
+	router.Handle(pattern)
+	assert.Equal(t, res, []string{"container.start"})
 
-	res = []string {}
-	router.Handle([]string { "co", "st" })
-	assert.Equal(t, res, []string {} )
+	res = []string{}
+	router.Handle([]string{"/some/path", "co", "sta", "1"})
+	assert.Equal(t, res, []string{"container.start"})
+
+	res = []string{}
+	router.Handle([]string{"/some/path", "co", "st"})
+	assert.Equal(t, res, []string{})
 }
