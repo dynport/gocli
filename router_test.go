@@ -5,33 +5,48 @@ import (
 	"testing"
 )
 
+var router *Router
+
+type DummyWriter struct {
+}
+
+func (writer *DummyWriter) Write([]byte) (int, error) {
+	return 0, nil
+}
+
+func init() {
+	if router == nil {
+		router = &Router{}
+		router.Writer = &DummyWriter{}
+		args := &Args{}
+		args.RegisterString("-h", false, "127.0.0.1", "host to use")
+		args.RegisterString("-i", true, "", "Image id")
+		router.Register(
+			"ssh",
+			&Action{
+				Description: "SSH Into",
+				Usage:       "<search>",
+			},
+		)
+		router.Register(
+			"container/start",
+			&Action{
+				Description: "start a container",
+				Args:        args,
+				Usage:       "<container_id>",
+			},
+		)
+		router.Register(
+			"container/stop",
+			&Action{
+				Description: "stop a container",
+				Usage:       "<container_id>",
+			},
+		)
+	}
+}
+
 func TestRouter(t *testing.T) {
-	router := &Router{}
-	args := &Args{}
-	args.RegisterString("-h", false, "127.0.0.1", "host to use")
-	args.RegisterString("-i", true, "", "Image id")
-	router.Register(
-		"ssh",
-		&Action{
-			Description: "SSH Into",
-			Usage:       "<search>",
-		},
-	)
-	router.Register(
-		"container/start",
-		&Action{
-			Description: "start a container",
-			Args:        args,
-			Usage:       "<container_id>",
-		},
-	)
-	router.Register(
-		"container/stop",
-		&Action{
-			Description: "stop a container",
-			Usage:       "<container_id>",
-		},
-	)
 	assert.NotNil(t, router)
 	usage := router.Usage()
 	assert.Contains(t, usage, "ssh      \t     \t<search>")
@@ -53,6 +68,10 @@ func TestSearchActions(t *testing.T) {
 	assert.Equal(t, len(router.Search([]string{"con"})), 2)
 }
 
+func TestRouterSearch(t *testing.T) {
+	//
+}
+
 func TestHandle(t *testing.T) {
 	res := []string {}
 
@@ -67,6 +86,7 @@ func TestHandle(t *testing.T) {
 		"image/list":      {},
 	},
 	)
+	router.Writer = &DummyWriter{}
 
 	router.Handle([]string { "co", "sta" })
 	assert.Equal(t, res, []string {"container.start"} )
