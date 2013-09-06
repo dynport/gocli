@@ -73,9 +73,9 @@ func TestUsage(t *testing.T) {
 
 func TestRegisterFlag(t *testing.T) {
 	args := &Args{}
-	args.RegisterFlag(&Flag{Keys: []string{"--host"}, Type: STRING})
-	args.RegisterFlag(&Flag{Keys: []string{"--help"}, Type: STRING})
-	args.RegisterFlag(&Flag{Keys: []string{"--enabled"}, Type: BOOL})
+	args.RegisterFlag(&Flag{CliFlag: "--host", Type: STRING})
+	args.RegisterFlag(&Flag{CliFlag: "--help", Type: STRING})
+	args.RegisterFlag(&Flag{CliFlag: "--enabled", Type: BOOL})
 
 	assert.Equal(t, len(args.lookup("--h")), 2)
 	assert.Equal(t, len(args.lookup("--h")), 2)

@@ -27,7 +27,7 @@ type Args struct {
 
 type Flag struct {
 	Type         string
-	Keys         []string
+	CliFlag      string
 	Required     bool
 	DefaultValue string
 	Description  string
@@ -36,28 +36,21 @@ type Flag struct {
 func NewArgs(mapping map[string]*Flag) *Args {
 	a := &Args{}
 	for key, flag := range mapping {
-		flag.Keys = []string{key}
+		flag.CliFlag = key
 		a.RegisterFlag(flag)
 	}
 	return a
 }
 
 func (f *Flag) Matches(key string) bool {
-	for _, k := range f.Keys {
-		if strings.HasPrefix(k, key) {
-			return true
-		}
-	}
-	return false
+	return strings.HasPrefix(f.CliFlag, key)
 }
 
 func (a *Args) RegisterFlag(flag *Flag) {
 	if a.FlagMap == nil {
 		a.FlagMap = make(map[string]*Flag)
 	}
-	for _, key := range flag.Keys {
-		a.FlagMap[key] = flag
-	}
+	a.FlagMap[flag.CliFlag] = flag
 	a.Flags = append(a.Flags, flag)
 }
 
@@ -65,7 +58,7 @@ func (a *Args) RegisterString(key string, required bool, defaultValue, descripti
 	a.RegisterFlag(
 		&Flag{
 			Type:         STRING,
-			Keys:         []string{key},
+			CliFlag:      key,
 			Required:     required,
 			DefaultValue: defaultValue,
 			Description:  description,
@@ -77,7 +70,7 @@ func (a *Args) RegisterInt(key string, required bool, defaultValue int, descript
 	a.RegisterFlag(
 		&Flag{
 			Type:         INTEGER,
-			Keys:         []string{key},
+			CliFlag:      key,
 			Required:     required,
 			DefaultValue: strconv.Itoa(defaultValue),
 			Description:  description,
@@ -89,7 +82,7 @@ func (a *Args) RegisterBool(key string, required bool, defaultValue bool, descri
 	a.RegisterFlag(
 		&Flag{
 			Type:         BOOL,
-			Keys:         []string{key},
+			CliFlag:      key,
 			Required:     required,
 			DefaultValue: strconv.FormatBool(required),
 			Description:  description,
@@ -99,7 +92,7 @@ func (a *Args) RegisterBool(key string, required bool, defaultValue bool, descri
 
 func (f *Flag) Usage() []string {
 	parts := make([]string, 3)
-	parts[0] = strings.Join(f.Keys, ", ")
+	parts[0] = f.CliFlag
 	if f.Required {
 		parts[1] = "REQUIRED"
 	} else {
@@ -142,7 +135,7 @@ func (a *Args) Bool(key string) {
 }
 
 func (a *Args) AddFlag(key, value string) {
-	a.RegisterFlag(&Flag{Type: value, Keys: []string{key}})
+	a.RegisterFlag(&Flag{Type: value, CliFlag: key})
 }
 
 func (a *Args) AddAttribute(k, v string) {
