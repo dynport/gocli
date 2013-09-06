@@ -114,6 +114,15 @@ func TestAttributesMap(t *testing.T) {
 	})
 }
 
+func TestAttributesMapWithMultipleArgs(t *testing.T) {
+	args := NewArgs(FlagMap{
+		"-H": {Type: STRING, Key: "hosts"},
+	})
+	args.Parse([]string{"-H", "host1", "-H", "host2"})
+	m := args.AttributesMap()
+	assert.Equal(t, m["hosts"], "host1,host2")
+}
+
 func TestRegisterBool(t *testing.T) {
 	args := &Args{}
 	args.RegisterBool("--disabled", false, false, "Disabled")
