@@ -19,8 +19,8 @@ func init() {
 		router = &Router{}
 		router.Writer = &DummyWriter{}
 		args := &Args{}
-		args.RegisterString("-h", false, "127.0.0.1", "host to use")
-		args.RegisterString("-i", true, "", "Image id")
+		args.RegisterString("-h", "host", false, "127.0.0.1", "host to use")
+		args.RegisterString("-i", "image", true, "", "Image id")
 		router.Register(
 			"ssh",
 			&Action{
@@ -79,9 +79,6 @@ func TestRouterSearch(t *testing.T) {
 	assert.Equal(t, len(router.Search([]string{"con", "sta"})), 1)
 	assert.Equal(t, len(router.Search([]string{"con", "st"})), 2)
 	assert.Equal(t, len(router.Search([]string{"on", "st"})), 0)
-	//assert.Equal(t, len(router.Search([]string{"con", "st"})), 2)
-	//assert.Equal(t, len(router.Search([]string{"con", "st", "1234"})), 2)
-	//assert.Equal(t, len(router.Search([]string{"con"})), 2)
 }
 
 func TestHandle(t *testing.T) {

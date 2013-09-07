@@ -77,11 +77,22 @@ func (a *Args) RegisterFlag(flag *Flag) {
 	a.Flags = append(a.Flags, flag)
 }
 
-func (a *Args) RegisterString(key string, required bool, defaultValue, description string) {
+func (a *Args) BuildStringFlag(key string, required bool, defaultValue, description string) *Flag {
+	return &Flag{
+		Type:         STRING,
+		CliFlag:      key,
+		Required:     required,
+		DefaultValue: defaultValue,
+		Description:  description,
+	}
+}
+
+func (a *Args) RegisterString(cliKey string, key string, required bool, defaultValue, description string) {
 	a.RegisterFlag(
 		&Flag{
 			Type:         STRING,
-			CliFlag:      key,
+			Key:          key,
+			CliFlag:      cliKey,
 			Required:     required,
 			DefaultValue: defaultValue,
 			Description:  description,
@@ -89,11 +100,12 @@ func (a *Args) RegisterString(key string, required bool, defaultValue, descripti
 	)
 }
 
-func (a *Args) RegisterInt(key string, required bool, defaultValue int, description string) {
+func (a *Args) RegisterInt(cliKey string, key string, required bool, defaultValue int, description string) {
 	a.RegisterFlag(
 		&Flag{
 			Type:         INTEGER,
-			CliFlag:      key,
+			CliFlag:      cliKey,
+			Key:          key,
 			Required:     required,
 			DefaultValue: strconv.Itoa(defaultValue),
 			Description:  description,
@@ -101,11 +113,12 @@ func (a *Args) RegisterInt(key string, required bool, defaultValue int, descript
 	)
 }
 
-func (a *Args) RegisterBool(key string, required bool, defaultValue bool, description string) {
+func (a *Args) RegisterBool(cliKey string, key string, required bool, defaultValue bool, description string) {
 	a.RegisterFlag(
 		&Flag{
 			Type:         BOOL,
-			CliFlag:      key,
+			Key:          key,
+			CliFlag:      cliKey,
 			Required:     required,
 			DefaultValue: strconv.FormatBool(required),
 			Description:  description,

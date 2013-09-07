@@ -36,7 +36,7 @@ func TestNotRegistered(t *testing.T) {
 
 func TestStringWithoutDefault(t *testing.T) {
 	args := &Args{}
-	args.RegisterString("--host", true, "", "Docker Host to be used")
+	args.RegisterString("--host", "host", true, "", "Docker Host to be used")
 	args.Parse([]string{"a", "b"})
 	_, e := args.GetString("--host")
 	assert.NotNil(t, e)
@@ -54,8 +54,8 @@ func TestRegister(t *testing.T) {
 
 func TestStringWithDefault(t *testing.T) {
 	args := &Args{}
-	args.RegisterString("--host", false, "default.host", "Docker Host to be used")
-	args.RegisterBool("--rack", false, false, "Use as rack application")
+	args.RegisterString("--host", "host", false, "default.host", "Docker Host to be used")
+	args.RegisterBool("--rack", "rack", false, false, "Use as rack application")
 	args.Parse([]string{"a", "b"})
 	v, e := args.GetString("--host")
 	assert.Nil(t, e)
@@ -64,8 +64,8 @@ func TestStringWithDefault(t *testing.T) {
 
 func TestUsage(t *testing.T) {
 	args := &Args{}
-	args.RegisterString("--host", false, "default.host", "Docker Host to be used")
-	args.RegisterBool("--rack", true, false, "Use as rack application")
+	args.RegisterString("--host", "host", false, "default.host", "Docker Host to be used")
+	args.RegisterBool("--rack", "rack", true, false, "Use as rack application")
 	s := args.Usage()
 	assert.NotNil(t, s)
 	assert.Contains(t, s, "--rack")
@@ -85,8 +85,8 @@ func TestRegisterFlag(t *testing.T) {
 
 func TestRegisterInt(t *testing.T) {
 	args := &Args{}
-	args.RegisterInt("-i", false, 10, "I id")
-	args.RegisterInt("-a", false, 30, "A id")
+	args.RegisterInt("-i", "image", false, 10, "I id")
+	args.RegisterInt("-a", "a", false, 30, "A id")
 	args.Parse([]string{"-i", "20"})
 
 	v, _ := args.GetInt("-i")
@@ -125,7 +125,7 @@ func TestAttributesMapWithMultipleArgs(t *testing.T) {
 
 func TestRegisterBool(t *testing.T) {
 	args := &Args{}
-	args.RegisterBool("--disabled", false, false, "Disabled")
+	args.RegisterBool("--disabled", "disabled", false, false, "Disabled")
 	tp, _ := args.TypeOf("--disabled")
 	assert.Equal(t, tp, "bool")
 	e := args.Parse([]string{"--disabled"})
