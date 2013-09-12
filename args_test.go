@@ -133,3 +133,8 @@ func TestRegisterBool(t *testing.T) {
 	res := args.GetBool("--disabled")
 	assert.Equal(t, res, true)
 }
+
+func TestRegisterArgs(t *testing.T) {
+	args := &Args{}
+	args.RegisterArgs("command host")
+}

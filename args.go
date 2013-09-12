@@ -17,15 +17,17 @@ var (
 	re = regexp.MustCompile("^([\\-]+.*)")
 )
 
-type Args struct {
-	Args       []string
-	Attributes map[string][]string
-	currentKey string
-	FlagMap    map[string]*Flag
-	Flags      []*Flag
-}
-
 type FlagMap map[string]*Flag
+type ArgumentMap map[string]*Argument
+
+type Args struct {
+	Args        []string
+	Attributes  map[string][]string
+	currentKey  string
+	FlagMap     FlagMap
+	ArgumentMap ArgumentMap
+	Flags       []*Flag
+}
 
 func NewArgs(mapping FlagMap) *Args {
 	a := &Args{}
@@ -34,6 +36,22 @@ func NewArgs(mapping FlagMap) *Args {
 		a.RegisterFlag(flag)
 	}
 	return a
+}
+
+type Argument struct {
+	Key      string
+	Index    int
+	Multiple bool
+}
+
+func (a *Args) RegisterArgs(args string) {
+	if a.ArgumentMap == nil {
+		a.ArgumentMap = ArgumentMap{}
+	}
+	for i, arg := range strings.Split(args, " ") {
+		a.ArgumentMap[arg] = &Argument{Key: arg, Index: i}
+	}
+	return
 }
 
 var RE_FLAG_PREFIX = regexp.MustCompile("^([\\-]+)")
