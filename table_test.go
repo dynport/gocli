@@ -28,3 +28,8 @@ func TestAddColumnsNotBeingStrings(t *testing.T) {
 	table.Add(1, 2, "a")
 	assert.Contains(t, table.String(), "1 2 a")
 }
+
+func TestStringLength(t *testing.T) {
+	str := Green("ok")
+	assert.Equal(t, stringLength(str), 2)
+}

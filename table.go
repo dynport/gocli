@@ -2,6 +2,7 @@ package gocli
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -25,6 +26,12 @@ func (self *Table) String() string {
 		lines = append(lines, line)
 	}
 	return strings.Join(lines, "\n")
+}
+
+var uncolorRegexp = regexp.MustCompile("\033\\[38;5;\\d+m")
+
+func stringLength(s string) int {
+	return len(strings.Replace(uncolorRegexp.ReplaceAllString(s, ""), "\033[0m", "", -1))
 }
 
 func (self *Table) Lines() (lines []string) {
@@ -53,7 +60,7 @@ func (self *Table) Add(cols ...interface{}) {
 	for i, v := range cols {
 		s := fmt.Sprint(v)
 		converted[i] = s
-		if self.Lengths[i] < len(s) {
+		if self.Lengths[i] < stringLength(s) {
 			self.Lengths[i] = len(s)
 		}
 	}
