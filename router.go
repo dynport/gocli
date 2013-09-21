@@ -154,11 +154,13 @@ func (cli *Router) Handle(raw []string) error {
 				parts = strings.Split(k, "/")
 				action = a
 			}
-			defer func(parts []string, action *Action) {
-				if r := recover(); r != nil {
-					cli.printActionUsage(parts, action, r)
-				}
-			}(parts, action)
+			if os.Getenv("DEBUG") != "true" {
+				defer func(parts []string, action *Action) {
+					if r := recover(); r != nil {
+						cli.printActionUsage(parts, action, r)
+					}
+				}(parts, action)
+			}
 			args := action.Args
 			if args == nil {
 				args = &Args{}
