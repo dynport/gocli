@@ -44,6 +44,15 @@ type Argument struct {
 	Multiple bool
 }
 
+func (a *Args) KeyForCliKey(cliKey string) string {
+	for _, flag := range a.Flags {
+		if flag.CliFlag == cliKey {
+			return flag.Key
+		}
+	}
+	return ""
+}
+
 func (a *Args) RegisterArgs(args string) {
 	if a.ArgumentMap == nil {
 		a.ArgumentMap = ArgumentMap{}
