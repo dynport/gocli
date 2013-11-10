@@ -20,9 +20,9 @@ type Table struct {
 	Separator string
 }
 
-func (self *Table) String() string {
+func (t *Table) String() string {
 	lines := []string{}
-	for _, line := range self.Lines() {
+	for _, line := range t.Lines() {
 		lines = append(lines, line)
 	}
 	return strings.Join(lines, "\n")
@@ -34,13 +34,13 @@ func stringLength(s string) int {
 	return len(strings.Replace(uncolorRegexp.ReplaceAllString(s, ""), "\033[0m", "", -1))
 }
 
-func (self *Table) Lines() (lines []string) {
-	for _, col := range self.Columns {
+func (t *Table) Lines() (lines []string) {
+	for _, col := range t.Columns {
 		cl := []string{}
 		for i, v := range col {
-			cl = append(cl, fmt.Sprintf("%-*s", self.Lengths[i], v))
+			cl = append(cl, fmt.Sprintf("%-*s", t.Lengths[i], v))
 		}
-		lines = append(lines, strings.Join(cl, self.Separator))
+		lines = append(lines, strings.Join(cl, t.Separator))
 	}
 	return
 }
@@ -55,14 +55,14 @@ func (t *Table) AddStrings(s []string) {
 }
 
 // Add adds a column to the table
-func (self *Table) Add(cols ...interface{}) {
+func (t *Table) Add(cols ...interface{}) {
 	converted := make([]string, len(cols))
 	for i, v := range cols {
 		s := fmt.Sprint(v)
 		converted[i] = s
-		if self.Lengths[i] < stringLength(s) {
-			self.Lengths[i] = len(s)
+		if t.Lengths[i] < stringLength(s) {
+			t.Lengths[i] = len(s)
 		}
 	}
-	self.Columns = append(self.Columns, converted)
+	t.Columns = append(t.Columns, converted)
 }
