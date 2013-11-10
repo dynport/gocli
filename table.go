@@ -21,11 +21,7 @@ type Table struct {
 }
 
 func (t *Table) String() string {
-	lines := []string{}
-	for _, line := range t.Lines() {
-		lines = append(lines, line)
-	}
-	return strings.Join(lines, "\n")
+	return strings.Join(t.Lines(), "\n")
 }
 
 var uncolorRegexp = regexp.MustCompile("\033\\[38;5;\\d+m")
