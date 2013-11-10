@@ -24,10 +24,10 @@ func (t *Table) String() string {
 	return strings.Join(t.Lines(), "\n")
 }
 
-var uncolorRegexp = regexp.MustCompile("\033\\[38;5;\\d+m")
+var uncolorRegexp = regexp.MustCompile("\033\\[38;5;\\d+m([^\033]+)\033\\[0m")
 
 func stringLength(s string) int {
-	return len(strings.Replace(uncolorRegexp.ReplaceAllString(s, ""), "\033[0m", "", -1))
+	return len(uncolorRegexp.ReplaceAllString(s, "$1"))
 }
 
 func (t *Table) Lines() (lines []string) {
