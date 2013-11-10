@@ -63,8 +63,6 @@ func (a *Args) RegisterArgs(args string) {
 	return
 }
 
-var RE_FLAG_PREFIX = regexp.MustCompile("^([\\-]+)")
-
 func (a *Args) getWithDefaults(key string) []string {
 	flag := a.FlagMap[key]
 	if flag == nil {
@@ -84,7 +82,7 @@ func (a *Args) AttributesMap() map[string]string {
 	for k, flag := range a.FlagMap {
 		key := flag.Key
 		if key == "" {
-			key = RE_FLAG_PREFIX.ReplaceAllString(k, "")
+			key = strings.TrimLeft(k, "-")
 		}
 		v := a.getWithDefaults(k)
 		if len(v) == 1 {
