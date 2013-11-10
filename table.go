@@ -41,24 +41,21 @@ func (t *Table) Lines() (lines []string) {
 	return
 }
 
-func (t *Table) AddStrings(s []string) {
-	var ret = make([]interface{}, len(s))
-
-	for i, v := range s {
-		ret[i] = v
+func (t *Table) AddStrings(list []string) {
+	for i, s := range list {
+		length := stringLength(s)
+		if width := t.Lengths[i]; width < length {
+			t.Lengths[i] = length
+		}
 	}
-	t.Add(ret...)
+	t.Columns = append(t.Columns, list)
 }
 
 // Add adds a column to the table
 func (t *Table) Add(cols ...interface{}) {
-	converted := make([]string, len(cols))
-	for i, v := range cols {
-		s := fmt.Sprint(v)
-		converted[i] = s
-		if t.Lengths[i] < stringLength(s) {
-			t.Lengths[i] = len(s)
-		}
+	converted := make([]string, 0, len(cols))
+	for _, v := range cols {
+		converted = append(converted, fmt.Sprint(v))
 	}
-	t.Columns = append(t.Columns, converted)
+	t.AddStrings(converted)
 }
