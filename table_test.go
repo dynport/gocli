@@ -32,4 +32,5 @@ func TestAddColumnsNotBeingStrings(t *testing.T) {
 func TestStringLength(t *testing.T) {
 	str := Green("ok")
 	assert.Equal(t, stringLength(str), 2)
+	assert.Equal(t, stringLength("ok"), 2)
 }

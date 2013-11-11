@@ -20,49 +20,42 @@ type Table struct {
 	Separator string
 }
 
-func (self *Table) String() string {
-	lines := []string{}
-	for _, line := range self.Lines() {
-		lines = append(lines, line)
-	}
-	return strings.Join(lines, "\n")
+func (t *Table) String() string {
+	return strings.Join(t.Lines(), "\n")
 }
 
-var uncolorRegexp = regexp.MustCompile("\033\\[38;5;\\d+m")
+var uncolorRegexp = regexp.MustCompile("\033\\[38;5;\\d+m([^\033]+)\033\\[0m")
 
 func stringLength(s string) int {
-	return len(strings.Replace(uncolorRegexp.ReplaceAllString(s, ""), "\033[0m", "", -1))
+	return len(uncolorRegexp.ReplaceAllString(s, "$1"))
 }
 
-func (self *Table) Lines() (lines []string) {
-	for _, col := range self.Columns {
+func (t *Table) Lines() (lines []string) {
+	for _, col := range t.Columns {
 		cl := []string{}
 		for i, v := range col {
-			cl = append(cl, fmt.Sprintf("%-*s", self.Lengths[i], v))
+			cl = append(cl, fmt.Sprintf("%-*s", t.Lengths[i], v))
 		}
-		lines = append(lines, strings.Join(cl, self.Separator))
+		lines = append(lines, strings.Join(cl, t.Separator))
 	}
 	return
 }
 
-func (t *Table) AddStrings(s []string) {
-	var ret = make([]interface{}, len(s))
-
-	for i, v := range s {
-		ret[i] = v
+func (t *Table) AddStrings(list []string) {
+	for i, s := range list {
+		length := stringLength(s)
+		if width := t.Lengths[i]; width < length {
+			t.Lengths[i] = length
+		}
 	}
-	t.Add(ret...)
+	t.Columns = append(t.Columns, list)
 }
 
 // Add adds a column to the table
-func (self *Table) Add(cols ...interface{}) {
-	converted := make([]string, len(cols))
-	for i, v := range cols {
-		s := fmt.Sprint(v)
-		converted[i] = s
-		if self.Lengths[i] < stringLength(s) {
-			self.Lengths[i] = len(s)
-		}
+func (t *Table) Add(cols ...interface{}) {
+	converted := make([]string, 0, len(cols))
+	for _, v := range cols {
+		converted = append(converted, fmt.Sprint(v))
 	}
-	self.Columns = append(self.Columns, converted)
+	t.AddStrings(converted)
 }
