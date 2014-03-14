@@ -18,8 +18,23 @@ type Table struct {
 	Columns   [][]string
 	Lengths   map[int]int
 	Separator string
+
+	SortBy int
 }
 
+func (t *Table) Len() int      { return len(t.Columns) }
+func (t *Table) Swap(a, b int) { t.Columns[a], t.Columns[b] = t.Columns[b], t.Columns[a] }
+func (t *Table) Less(a, b int) bool {
+	if len(t.Columns[a]) <= t.SortBy {
+		return false
+	} else if len(t.Columns[b]) <= t.SortBy {
+		return true
+	} else {
+		return fmt.Sprint(t.Columns[a][t.SortBy]) <= fmt.Sprintf(t.Columns[b][t.SortBy])
+	}
+	return true
+
+}
 func (t *Table) String() string {
 	return strings.Join(t.Lines(), "\n")
 }

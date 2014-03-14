@@ -1,9 +1,28 @@
 package gocli
 
 import (
-	"github.com/stretchr/testify/assert"
+	"sort"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
+
+func TestSortTable(t *testing.T) {
+	ta := NewTable()
+	ta.Add("a", 2)
+	ta.Add("b", 1)
+
+	ta.SortBy = 0
+	sort.Sort(ta)
+
+	assert.Equal(t, ta.Columns[0][0], "a")
+	assert.Equal(t, ta.Columns[1][0], "b")
+
+	ta.SortBy = 1
+	sort.Sort(ta)
+	assert.Equal(t, ta.Columns[0][0], "b")
+	assert.Equal(t, ta.Columns[1][0], "a")
+}
 
 func TestTable(t *testing.T) {
 	table := NewTable()
