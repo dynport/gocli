@@ -1,8 +1,12 @@
 package gocli
 
 import (
+	"bufio"
 	"fmt"
+	"math"
+	"os"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -22,8 +26,24 @@ type Table struct {
 	SortBy int
 }
 
-func (t *Table) Len() int      { return len(t.Columns) }
+func (t *Table) Select(message string) int {
+	for {
+		fmt.Fprintf(os.Stdout, t.StringWithIndex()+"\n"+message+": ")
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
+		i, e := strconv.Atoi(scanner.Text())
+		if e == nil {
+			if i > 0 && i <= len(t.Columns) {
+				return i - 1
+			}
+		}
+	}
+}
+
+func (t *Table) Len() int { return len(t.Columns) }
+
 func (t *Table) Swap(a, b int) { t.Columns[a], t.Columns[b] = t.Columns[b], t.Columns[a] }
+
 func (t *Table) Less(a, b int) bool {
 	if len(t.Columns[a]) <= t.SortBy {
 		return false
@@ -33,10 +53,14 @@ func (t *Table) Less(a, b int) bool {
 		return fmt.Sprint(t.Columns[a][t.SortBy]) <= fmt.Sprintf(t.Columns[b][t.SortBy])
 	}
 	return true
-
 }
+
 func (t *Table) String() string {
-	return strings.Join(t.Lines(), "\n")
+	return strings.Join(t.Lines(false), "\n")
+}
+
+func (t *Table) StringWithIndex() string {
+	return strings.Join(t.Lines(true), "\n")
 }
 
 var uncolorRegexp = regexp.MustCompile("\033\\[38;5;\\d+m([^\033]+)\033\\[0m")
@@ -45,11 +69,22 @@ func stringLength(s string) int {
 	return len(uncolorRegexp.ReplaceAllString(s, "$1"))
 }
 
-func (t *Table) Lines() (lines []string) {
-	for _, col := range t.Columns {
+func (t *Table) Lines(printIndex bool) (lines []string) {
+	for row, col := range t.Columns {
 		cl := []string{}
+		if printIndex {
+			col = append([]string{strconv.Itoa(row + 1)}, col...)
+		}
 		for i, v := range col {
-			cl = append(cl, fmt.Sprintf("%-*s", t.Lengths[i], v))
+			theLen := t.Lengths[i]
+			if printIndex {
+				if i == 0 {
+					theLen = int(math.Ceil(math.Log10(float64(len(t.Columns)))))
+				} else {
+					theLen = t.Lengths[i-1]
+				}
+			}
+			cl = append(cl, fmt.Sprintf("%-*s", theLen, v))
 		}
 		lines = append(lines, strings.Join(cl, t.Separator))
 	}
