@@ -1,16 +1,10 @@
-default: test
+default: build test
 
 build:
-	go build -o ./bin/gocli
+	go get ./...
 
 clean:
 	rm -f bin/*
 
-install:
-	go install github.com/dynport/gocli
-
 test: clean build
-	go test -v
-	# ./bin/gocli
-	# ./bin/gocli co
-	# ./bin/gocli co sta
+	go test
