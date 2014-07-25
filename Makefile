@@ -1,7 +1,7 @@
 default: build test
 
 build:
-	go get ./...
+	go get -t ./...
 
 clean:
 	rm -f bin/*
