@@ -29,7 +29,7 @@ func TestTable(t *testing.T) {
 	assert.NotNil(t, table)
 	table.Add("a", "b")
 	table.Add("aa", "bb")
-	assert.Equal(t, len(table.Lines()), 2)
+	assert.Equal(t, len(table.Lines(false)), 2)
 	assert.Contains(t, table.String(), "a\tb")
 
 	table.Separator = " "
