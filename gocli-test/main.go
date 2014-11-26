@@ -29,7 +29,7 @@ func main() {
 			"image/list": {
 				Description: "List Images",
 				Handler: func(args *gocli.Args) error {
-					fmt.Println("ACITON: list images")
+					fmt.Println("ACTION: list images")
 					return nil
 				},
 			},
