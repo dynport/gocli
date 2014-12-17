@@ -7,6 +7,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestIntLength(t *testing.T) {
+	tests := []struct {
+		Integer  int
+		Expected interface{}
+	}{
+		{1, 1},
+		{0, 1},
+		{10, 2},
+		{100, 3},
+		{-1, 2},
+	}
+
+	for _, tst := range tests {
+		v := intLength(tst.Integer)
+		if tst.Expected != v {
+			t.Errorf("expected %d to be %#v, was %#v", tst.Integer, tst.Expected, v)
+		}
+	}
+
+}
+
 func TestSortTable(t *testing.T) {
 	ta := NewTable()
 	ta.Add("a", 2)

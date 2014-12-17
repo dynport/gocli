@@ -79,7 +79,7 @@ func (t *Table) Lines(printIndex bool) (lines []string) {
 			theLen := t.Lengths[i]
 			if printIndex {
 				if i == 0 {
-					theLen = int(math.Ceil(math.Log10(float64(len(t.Columns)))))
+					theLen = intLength(len(t.Columns))
 				} else {
 					theLen = t.Lengths[i-1]
 				}
@@ -90,6 +90,15 @@ func (t *Table) Lines(printIndex bool) (lines []string) {
 		lines = append(lines, strings.Join(cl, t.Separator))
 	}
 	return
+}
+
+func intLength(i int) int {
+	if i == 0 {
+		return 1
+	} else if i < 0 {
+		return intLength(int(math.Abs(float64(i)))) + 1
+	}
+	return int(math.Ceil(math.Log10(float64(i + 1))))
 }
 
 func (t *Table) AddStrings(list []string) {
