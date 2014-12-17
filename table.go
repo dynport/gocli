@@ -84,7 +84,8 @@ func (t *Table) Lines(printIndex bool) (lines []string) {
 					theLen = t.Lengths[i-1]
 				}
 			}
-			cl = append(cl, fmt.Sprintf("%-*s", theLen, v))
+			pad := theLen - stringLength(v)
+			cl = append(cl, v+strings.Repeat(" ", pad))
 		}
 		lines = append(lines, strings.Join(cl, t.Separator))
 	}
