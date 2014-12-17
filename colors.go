@@ -2,6 +2,7 @@ package gocli
 
 import (
 	"fmt"
+	"strings"
 )
 
 const (
@@ -48,5 +49,8 @@ func White(s string) string {
 }
 
 func Colorize(c int, s string) (r string) {
+	if strings.TrimSpace(s) == "" {
+		return s
+	}
 	return fmt.Sprintf("\033[38;5;%dm%s\033[0m", c, s)
 }
