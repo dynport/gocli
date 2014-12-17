@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 func NewTable() *Table {
@@ -66,7 +67,7 @@ func (t *Table) StringWithIndex() string {
 var uncolorRegexp = regexp.MustCompile("\033\\[38;5;\\d+m([^\033]+)\033\\[0m")
 
 func stringLength(s string) int {
-	return len(uncolorRegexp.ReplaceAllString(s, "$1"))
+	return utf8.RuneCountInString((uncolorRegexp.ReplaceAllString(s, "$1")))
 }
 
 func (t *Table) Lines(printIndex bool) (lines []string) {

@@ -25,7 +25,25 @@ func TestIntLength(t *testing.T) {
 			t.Errorf("expected %d to be %#v, was %#v", tst.Integer, tst.Expected, v)
 		}
 	}
+}
 
+func TestStringLength(t *testing.T) {
+	tests := []struct {
+		Name     string
+		Expected interface{}
+	}{
+		{"A", 1},
+		{"Ü", 1},
+		{"ÜÄÖ", 3},
+		{Red("ÜÖ"), 2},
+	}
+
+	for _, tst := range tests {
+		v := stringLength(tst.Name)
+		if tst.Expected != v {
+			t.Errorf("expected %s to be %#v, was %#v", tst.Name, tst.Expected, v)
+		}
+	}
 }
 
 func TestSortTable(t *testing.T) {
@@ -67,10 +85,4 @@ func TestAddColumnsNotBeingStrings(t *testing.T) {
 	table.Separator = " "
 	table.Add(1, 2, "a")
 	assert.Contains(t, table.String(), "1 2 a")
-}
-
-func TestStringLength(t *testing.T) {
-	str := Green("ok")
-	assert.Equal(t, stringLength(str), 2)
-	assert.Equal(t, stringLength("ok"), 2)
 }
