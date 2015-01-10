@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -117,6 +118,37 @@ func (t *Table) Add(cols ...interface{}) {
 	converted := make([]string, 0, len(cols))
 	for _, v := range cols {
 		converted = append(converted, fmt.Sprint(v))
+	}
+	t.AddStrings(converted)
+}
+
+// Dereferencing pointers if not nil
+// TODO: Please someone tell me, how to do this right!
+func (t *Table) AddP(cols ...interface{}) {
+	converted := make([]string, 0, len(cols))
+	var str string
+	for _, v := range cols {
+		if value := reflect.ValueOf(v); value.Kind() == reflect.Ptr {
+			indirect := reflect.Indirect(value)
+			switch {
+			case indirect != reflect.Zero(value.Type()) && indirect.IsValid() == true:
+				switch {
+				case indirect.Kind() == reflect.String:
+					str = fmt.Sprint(indirect.String())
+				case indirect.Kind() == reflect.Int:
+					str = fmt.Sprint(indirect.Int())
+				case indirect.Kind() == reflect.Float32:
+					str = fmt.Sprint(indirect.Float())
+				case indirect.Kind() == reflect.Bool:
+					str = fmt.Sprint(indirect.Bool())
+				}
+			default:
+				str = ""
+			}
+		} else {
+			str = fmt.Sprint(v)
+		}
+		converted = append(converted, str)
 	}
 	t.AddStrings(converted)
 }
