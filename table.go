@@ -141,8 +141,10 @@ func (t *Table) AddP(cols ...interface{}) {
 					str = fmt.Sprint(indirect.Float())
 				case indirect.Kind() == reflect.Bool:
 					str = fmt.Sprint(indirect.Bool())
+				case indirect.Kind() == reflect.Slice:
+					str = fmt.Sprint(v)
 				default:
-					str = ""
+					str = fmt.Sprint(v)
 				}
 			default:
 				str = ""
