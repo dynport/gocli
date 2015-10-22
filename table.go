@@ -25,7 +25,8 @@ type Table struct {
 	Lengths   map[int]int
 	Separator string
 
-	SortBy int
+	SortBy    int
+	HasHeader bool
 }
 
 func (t *Table) Select(message string) int {
@@ -47,6 +48,13 @@ func (t *Table) Len() int { return len(t.Columns) }
 func (t *Table) Swap(a, b int) { t.Columns[a], t.Columns[b] = t.Columns[b], t.Columns[a] }
 
 func (t *Table) Less(a, b int) bool {
+	if t.HasHeader {
+		if a == 0 {
+			return true
+		} else if b == 0 {
+			return false
+		}
+	}
 	if len(t.Columns[a]) <= t.SortBy {
 		return false
 	} else if len(t.Columns[b]) <= t.SortBy {
@@ -120,6 +128,11 @@ func (t *Table) Add(cols ...interface{}) {
 		converted = append(converted, fmt.Sprint(v))
 	}
 	t.AddStrings(converted)
+}
+
+func (t *Table) Header(cols ...interface{}) {
+	t.HasHeader = true
+	t.Add(cols...)
 }
 
 // Dereferencing pointers if not nil
