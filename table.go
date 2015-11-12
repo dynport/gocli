@@ -125,9 +125,27 @@ func (t *Table) AddStrings(list []string) {
 func (t *Table) Add(cols ...interface{}) {
 	converted := make([]string, 0, len(cols))
 	for _, v := range cols {
-		converted = append(converted, fmt.Sprint(v))
+		converted = append(converted, vToS(v))
 	}
 	t.AddStrings(converted)
+}
+
+func vToS(in interface{}) string {
+	if in == nil {
+		return "<nil>"
+	}
+	switch c := in.(type) {
+	case *string:
+		return *c
+	case *int:
+		return fmt.Sprint(*c)
+	case *int64:
+		return fmt.Sprint(*c)
+	case *float64:
+		return fmt.Sprint(*c)
+	default:
+		return fmt.Sprint(in)
+	}
 }
 
 func (t *Table) Header(cols ...interface{}) {
