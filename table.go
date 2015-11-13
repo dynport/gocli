@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 	"unicode/utf8"
 )
 
@@ -131,7 +132,8 @@ func (t *Table) Add(cols ...interface{}) {
 }
 
 func vToS(in interface{}) string {
-	if in == nil {
+	v := reflect.ValueOf(in)
+	if v.Kind() == reflect.Ptr && v.IsNil() {
 		return "<nil>"
 	}
 	switch c := in.(type) {
@@ -142,6 +144,8 @@ func vToS(in interface{}) string {
 	case *int64:
 		return fmt.Sprint(*c)
 	case *float64:
+		return fmt.Sprint(*c)
+	case *time.Time:
 		return fmt.Sprint(*c)
 	default:
 		return fmt.Sprint(in)
