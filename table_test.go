@@ -63,6 +63,23 @@ func TestSortTable(t *testing.T) {
 	assert.Equal(t, ta.Columns[1][0], "a")
 }
 
+func TestSortWithHeader(t *testing.T) {
+	ta := NewTable()
+	ta.Header("b")
+	ta.Add("a")
+	ta.Add("d")
+	ta.Add("c")
+	sort.Sort(ta)
+	if v, ex := ta.String(), "b\na\nc\nd"; ex != v {
+		t.Errorf("expected ta.String() to be %q, was %q", ex, v)
+	}
+
+	sort.Sort(sort.Reverse(ta))
+	if v, ex := ta.String(), "b\nd\nc\na"; ex != v {
+		t.Errorf("expected ta.String() to be %q, was %q", ex, v)
+	}
+}
+
 func TestTable(t *testing.T) {
 	table := NewTable()
 	assert.NotNil(t, table)

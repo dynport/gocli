@@ -6,13 +6,15 @@ func TestLength(t *testing.T) {
 	tab := NewTable()
 	tab.Add("a", "ab")
 
+	lengths := tab.lengths()
+
 	tests := []struct {
 		Name     string
 		Expected interface{}
 		Value    interface{}
 	}{
-		{"0", 1, tab.Lengths[0]},
-		{"1", 2, tab.Lengths[1]},
+		{"0", 1, lengths[0]},
+		{"1", 2, lengths[1]},
 	}
 
 	for _, tst := range tests {
@@ -23,13 +25,15 @@ func TestLength(t *testing.T) {
 
 	tab.Add(Red("abc"), Green("abcd"))
 
+	lengths = tab.lengths()
+
 	tests = []struct {
 		Name     string
 		Expected interface{}
 		Value    interface{}
 	}{
-		{"0", 3, tab.Lengths[0]},
-		{"1", 4, tab.Lengths[1]},
+		{"0", 3, lengths[0]},
+		{"1", 4, lengths[1]},
 	}
 
 	for _, tst := range tests {

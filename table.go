@@ -16,18 +16,16 @@ import (
 func NewTable() *Table {
 	return &Table{
 		Columns:   [][]string{},
-		Lengths:   map[int]int{},
 		Separator: "\t",
 	}
 }
 
 type Table struct {
 	Columns   [][]string
-	Lengths   map[int]int
 	Separator string
 
-	SortBy    int
-	HasHeader bool
+	header []string
+	SortBy int
 }
 
 func (t *Table) Select(message string) int {
@@ -49,13 +47,6 @@ func (t *Table) Len() int { return len(t.Columns) }
 func (t *Table) Swap(a, b int) { t.Columns[a], t.Columns[b] = t.Columns[b], t.Columns[a] }
 
 func (t *Table) Less(a, b int) bool {
-	if t.HasHeader {
-		if a == 0 {
-			return true
-		} else if b == 0 {
-			return false
-		}
-	}
 	if len(t.Columns[a]) <= t.SortBy {
 		return false
 	} else if len(t.Columns[b]) <= t.SortBy {
@@ -81,18 +72,31 @@ func stringLength(s string) int {
 }
 
 func (t *Table) Lines(printIndex bool) (lines []string) {
-	for row, col := range t.Columns {
+	toPrint := t.Columns
+	if len(t.header) > 0 {
+		toPrint = append([][]string{t.header}, toPrint...)
+	}
+
+	lengths := map[int]int{}
+	for _, c := range toPrint {
+		for i, v := range c {
+			if l := stringLength(v); l > lengths[i] {
+				lengths[i] = l
+			}
+		}
+	}
+	for row, col := range toPrint {
 		cl := []string{}
 		if printIndex {
 			col = append([]string{strconv.Itoa(row + 1)}, col...)
 		}
 		for i, v := range col {
-			theLen := t.Lengths[i]
+			theLen := lengths[i]
 			if printIndex {
 				if i == 0 {
 					theLen = intLength(len(t.Columns))
 				} else {
-					theLen = t.Lengths[i-1]
+					theLen = lengths[i-1]
 				}
 			}
 			pad := theLen - stringLength(v)
@@ -101,6 +105,26 @@ func (t *Table) Lines(printIndex bool) (lines []string) {
 		lines = append(lines, strings.Join(cl, t.Separator))
 	}
 	return
+}
+
+func (t *Table) toPrint() [][]string {
+	toPrint := t.Columns
+	if len(t.header) > 0 {
+		toPrint = append([][]string{t.header}, toPrint...)
+	}
+	return toPrint
+}
+
+func (t *Table) lengths() map[int]int {
+	m := map[int]int{}
+	for _, c := range t.toPrint() {
+		for i, v := range c {
+			if l := stringLength(v); l > m[i] {
+				m[i] = l
+			}
+		}
+	}
+	return m
 }
 
 func intLength(i int) int {
@@ -113,22 +137,20 @@ func intLength(i int) int {
 }
 
 func (t *Table) AddStrings(list []string) {
-	for i, s := range list {
-		length := stringLength(s)
-		if width := t.Lengths[i]; width < length {
-			t.Lengths[i] = length
-		}
-	}
 	t.Columns = append(t.Columns, list)
 }
 
 // Add adds a column to the table
 func (t *Table) Add(cols ...interface{}) {
-	converted := make([]string, 0, len(cols))
-	for _, v := range cols {
-		converted = append(converted, vToS(v))
+	t.AddStrings(convertIArray(cols...))
+}
+
+func convertIArray(in ...interface{}) (out []string) {
+	out = make([]string, 0, len(in))
+	for _, v := range in {
+		out = append(out, vToS(v))
 	}
-	t.AddStrings(converted)
+	return out
 }
 
 func vToS(in interface{}) string {
@@ -153,8 +175,7 @@ func vToS(in interface{}) string {
 }
 
 func (t *Table) Header(cols ...interface{}) {
-	t.HasHeader = true
-	t.Add(cols...)
+	t.header = convertIArray(cols...)
 }
 
 // Dereferencing pointers if not nil
