@@ -169,6 +169,8 @@ func vToS(in interface{}) string {
 		return fmt.Sprint(*c)
 	case *time.Time:
 		return fmt.Sprint(*c)
+	case *bool:
+		return fmt.Sprint(*c)
 	default:
 		return fmt.Sprint(in)
 	}
