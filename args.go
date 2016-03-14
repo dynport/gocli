@@ -89,6 +89,8 @@ func (a *Args) AttributesMap() map[string]string {
 			m[key] = v[0]
 		} else if len(v) > 0 {
 			m[key] = strings.Join(v, ",")
+		} else if flag.Required {
+			panic(fmt.Errorf("flag %s is required", k))
 		}
 	}
 	return m
