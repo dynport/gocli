@@ -48,7 +48,8 @@ func TestRegister(t *testing.T) {
 	},
 	)
 	assert.NotNil(t, args)
-	ty, _ := args.TypeOf("-h")
+	flag, _ := args.UniqueFlagForFlagPrefix("-h")
+	ty := flag.Type
 	assert.Equal(t, ty, "string")
 }
 
@@ -126,7 +127,8 @@ func TestAttributesMapWithMultipleArgs(t *testing.T) {
 func TestRegisterBool(t *testing.T) {
 	args := &Args{}
 	args.RegisterBool("--disabled", "disabled", false, false, "Disabled")
-	tp, _ := args.TypeOf("--disabled")
+	flag, _ := args.UniqueFlagForFlagPrefix("--disabled")
+	tp := flag.Type
 	assert.Equal(t, tp, "bool")
 	e := args.Parse([]string{"--disabled"})
 	assert.Nil(t, e)
@@ -137,4 +139,13 @@ func TestRegisterBool(t *testing.T) {
 func TestRegisterArgs(t *testing.T) {
 	args := &Args{}
 	args.RegisterArgs("command host")
+}
+
+func TestGetWithFuzzyMatching(t *testing.T) {
+	args := NewArgs(FlagMap{
+		"--version": {Type: STRING, DefaultValue: "1.2.3"},
+	})
+	args.Parse([]string{"--ver", "1.2.1"})
+	value := args.Get("--version")
+	assert.Equal(t, []string{"1.2.1"}, value)
 }
