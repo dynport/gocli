@@ -140,3 +140,12 @@ func TestRegisterArgs(t *testing.T) {
 	args := &Args{}
 	args.RegisterArgs("command host")
 }
+
+func TestGetWithFuzzyMatching(t *testing.T) {
+	args := NewArgs(FlagMap{
+		"--version": {Type: STRING, DefaultValue: "1.2.3"},
+	})
+	args.Parse([]string{"--ver", "1.2.1"})
+	value := args.Get("--version")
+	assert.Equal(t, []string{"1.2.1"}, value)
+}
