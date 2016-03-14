@@ -48,7 +48,8 @@ func TestRegister(t *testing.T) {
 	},
 	)
 	assert.NotNil(t, args)
-	ty, _ := args.TypeOf("-h")
+	flag, _ := args.UniqueFlagForFlagPrefix("-h")
+	ty := flag.Type
 	assert.Equal(t, ty, "string")
 }
 
@@ -126,7 +127,8 @@ func TestAttributesMapWithMultipleArgs(t *testing.T) {
 func TestRegisterBool(t *testing.T) {
 	args := &Args{}
 	args.RegisterBool("--disabled", "disabled", false, false, "Disabled")
-	tp, _ := args.TypeOf("--disabled")
+	flag, _ := args.UniqueFlagForFlagPrefix("--disabled")
+	tp := flag.Type
 	assert.Equal(t, tp, "bool")
 	e := args.Parse([]string{"--disabled"})
 	assert.Nil(t, e)

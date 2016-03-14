@@ -204,28 +204,29 @@ func (a *Args) Parse(args []string) error {
 	return nil
 }
 
-func (a *Args) TypeOf(key string) (out string, e error) {
-	flags := a.lookup(key)
+func (a *Args) UniqueFlagForFlagPrefix(flagPrefix string) (flag *Flag, e error) {
+	flags := a.lookup(flagPrefix)
 	switch len(flags) {
 	case 0:
-		e = fmt.Errorf("no mapping defined for %s", key)
+		e = fmt.Errorf("no mapping defined for %s", flagPrefix)
 	case 1:
-		out = flags[0].Type
+		flag = flags[0]
 	default:
-		e = fmt.Errorf("mapping for %s not uniq", key)
+		e = fmt.Errorf("mapping for %s not uniq", flagPrefix)
 	}
-	return out, e
+	return flag, e
 }
 
 func (a *Args) handleArgFlag(flag string) error {
-	if t, e := a.TypeOf(flag); e != nil {
+	if flag, e := a.UniqueFlagForFlagPrefix(flag); e != nil {
 		return e
 	} else {
+		t := flag.Type
 		switch t {
 		case STRING, INTEGER:
-			a.currentKey = flag
+			a.currentKey = flag.CliFlag
 		case BOOL:
-			a.AddAttribute(flag, "true")
+			a.AddAttribute(flag.CliFlag, "true")
 		default:
 			return fmt.Errorf("no mapping defined for %s", flag)
 		}
@@ -237,9 +238,13 @@ func (a *Args) handleArg(arg string) error {
 	if parts := re.FindStringSubmatch(arg); len(parts) == 2 {
 		chunks := strings.Split(parts[1], "=")
 		if len(chunks) == 2 {
-			key, value := chunks[0], chunks[1]
-			a.AddAttribute(key, value)
-			return nil
+			if flag, e := a.UniqueFlagForFlagPrefix(chunks[0]); e != nil {
+				return e
+			} else {
+				key, value := flag.CliFlag, chunks[1]
+				a.AddAttribute(key, value)
+				return nil
+			}
 		} else {
 			if e := a.handleArgFlag(chunks[0]); e != nil {
 				return e
